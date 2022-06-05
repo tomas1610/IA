@@ -42,7 +42,7 @@ class Board:
 
     def __str__(self):
         ster = ""
-        for l in range(0,len(self.board[0])):
+        for l in range(0,len(self.board)):
             ster += str(self.board[l]) + "\n"
         return ster
 
@@ -55,7 +55,7 @@ class Board:
         respectivamente."""
         if row == 0:
             return (None,self.board[row+1,col])
-        elif row == len(self.board[0])-1:
+        elif row == len(self.board)-1:
             return (self.board[row-1][col],None)
         else:
             return (self.board[row-1][col],self.board[row+1,col])
@@ -65,7 +65,7 @@ class Board:
         respectivamente."""
         if col == 0:
             return (None,self.board[row,col+1])
-        elif col == len(self.board[0])-1:
+        elif col == len(self.board)-1:
             return (self.board[row][col-1],None)
         else:
             return (self.board[row][col-1],self.board[row,col+1])
@@ -94,21 +94,23 @@ class Board:
 
     # TODO: outros metodos da classe
 
-
 class Takuzu(Problem):
     def __init__(self, board: Board):
         """O construtor especifica o estado inicial."""
-        self.state = TakuzuState(Board)
+        self.state = TakuzuState(board)
         print('test')
 
     def actions(self, state: TakuzuState):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento."""
-        #a = []
-	#n = len(state.board.board)
-	#for l in range(0,n):
-		#for r in range(0,n):
-		
+        a = []
+        n = len(state.board.board)
+        for l in range(0,n):
+            for c in range(0,n):
+                if self.state.board.get_number(l,c) == 2:
+                    a += [(l,c,0)]	# verificamos se a ação é legal aqui ou no goal_test? CSP
+                    a += [(l,c,1)]
+        return a		
 
     def result(self, state: TakuzuState, action):
         """Retorna o estado resultante de executar a 'action' sobre
@@ -116,7 +118,9 @@ class Takuzu(Problem):
         das presentes na lista obtida pela execução de
         self.actions(state)."""
         # TODO
-        pass
+        state1 = TakuzuState(board)
+        state1.board.board[action[0]][action[1]] = action[2]
+        return state1
 
     def goal_test(self, state: TakuzuState):
         """Retorna True se e só se o estado passado como argumento é
@@ -148,12 +152,16 @@ if __name__ == "__main__":
     #print(solution)
 	
     board = Board.parse_instance_from_stdin()
+    problem = Takuzu(board)
     print("Initial:\n", board, sep="")
 	# Imprimir valores adjacentes
     print(board.adjacent_vertical_numbers(3, 3))
     print(board.adjacent_horizontal_numbers(3, 3))
     print(board.adjacent_vertical_numbers(1, 1))
     print(board.adjacent_horizontal_numbers(1, 1))
+    l = problem.actions(problem.state)
+    print(l)
+    print(problem.result(problem.state,l[0]).board.board)
 
 
 
