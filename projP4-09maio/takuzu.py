@@ -40,29 +40,35 @@ class Board:
     def __init__(self, table):
         self.board = np.array(table)
 
+    def __str__(self):
+        ster = ""
+        for l in range(0,len(self.board[0])):
+            ster += str(self.board[l]) + "\n"
+        return ster
+
     def get_number(self, row: int, col: int) -> int:
         """Devolve o valor na respetiva posição do tabuleiro."""
-        return self.board[row-1][col-1]
+        return self.board[row][col]
 
     def adjacent_vertical_numbers(self, row: int, col: int) -> (int, int):
         """Devolve os valores imediatamente abaixo e acima,
         respectivamente."""
-        if row == 1:
-            return (None,self.board[row,col-1])
-        elif row == 4:
-            return (self.board[row-2][col-1],None)
+        if row == 0:
+            return (None,self.board[row+1,col])
+        elif row == len(self.board[0])-1:
+            return (self.board[row-1][col],None)
         else:
-            return (self.board[row-2][col-1],self.board[row,col-1])
+            return (self.board[row-1][col],self.board[row+1,col])
 
     def adjacent_horizontal_numbers(self, row: int, col: int) -> (int, int):
         """Devolve os valores imediatamente à esquerda e à direita,
         respectivamente."""
-        if col == 1:
-            return (None,self.board[row-1,col])
-        elif col == 4:
-            return (self.board[row-1][col-2],None)
+        if col == 0:
+            return (None,self.board[row,col+1])
+        elif col == len(self.board[0])-1:
+            return (self.board[row][col-1],None)
         else:
-            return (self.board[row-1][col-2],self.board[row-1,col])
+            return (self.board[row][col-1],self.board[row,col+1])
         
 
     @staticmethod
@@ -98,7 +104,11 @@ class Takuzu(Problem):
     def actions(self, state: TakuzuState):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento."""
-        
+        #a = []
+	#n = len(state.board.board)
+	#for l in range(0,n):
+		#for r in range(0,n):
+		
 
     def result(self, state: TakuzuState, action):
         """Retorna o estado resultante de executar a 'action' sobre
@@ -130,12 +140,21 @@ if __name__ == "__main__":
     # Retirar a solução a partir do nó resultante, 
     # Imprimir para o standard output no formato indicado.
 
-    board = Board.parse_instance_from_stdin()
-    problem = Takuzu(board)
-    goal_node = greedy_search(problem)
-    solution = goal_node.state.board
+    #board = Board.parse_instance_from_stdin()
+    #problem = Takuzu(board)
+    #goal_node = greedy_search(problem)
+    #solution = goal_node.state.board
 
-    print(solution)
+    #print(solution)
+	
+    board = Board.parse_instance_from_stdin()
+    print("Initial:\n", board, sep="")
+	# Imprimir valores adjacentes
+    print(board.adjacent_vertical_numbers(3, 3))
+    print(board.adjacent_horizontal_numbers(3, 3))
+    print(board.adjacent_vertical_numbers(1, 1))
+    print(board.adjacent_horizontal_numbers(1, 1))
+
 
 
     pass
