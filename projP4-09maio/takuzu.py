@@ -30,7 +30,7 @@ class TakuzuState:
 
     def __lt__(self, other):
         return self.id < other.id
-
+	# j
     # TODO: outros metodos da classe
 
 
