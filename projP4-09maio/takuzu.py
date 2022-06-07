@@ -26,7 +26,115 @@ class TakuzuState:
     def __init__(self, board):
         self.board = board
         self.id = TakuzuState.state_id
+        changes = 1
+        while (changes != 0):
+            changes = self.number_1_0()
+            changes = self.check_mandatory()
         TakuzuState.state_id += 1
+
+    def change_row(self, row : int, value : int):
+        changed = 0
+        n = len(self.board.board)
+        for i in range(0,n):
+            if self.board.board[row][i] == 2:
+                self.board.board[row][i] = value
+                changed = 1
+        return changed
+
+    def change_collun(self, col : int, value : int):
+        changed = 0
+        n = len(self.board.board)
+        for i in range(0,n):
+            if self.board.board[i][col] == 2:
+                self.board.board[i][col] = value 
+                changed = 1
+        return changed
+
+    def number_1_0(self):
+        changes = 0
+        n = len(self.board.board)
+        if n % 2 == 0:
+            max_value= n /2
+            for l in range(0,n):
+                uns = np.count_nonzero(self.board.board[l] == 1)
+                zeros = np.count_nonzero(self.board.board[l] == 0)
+                if uns == max_value:
+                    if self.change_row(l,0) == 1:
+                        changes += 1
+                if zeros == max_value:
+                    if self.change_row(l,1) == 1:
+                        changes += 1
+            transposta = np.transpose(self.board.board)
+            for l in range(0,n):
+                uns = np.count_nonzero(transposta[l] == 1)
+                zeros = np.count_nonzero(transposta[l] == 0)
+                if uns == max_value:
+                    if self.change_collun(l,0) == 1:
+                        changes += 1
+                if zeros == max_value:
+                    if self.change_collun(l,1) == 1:
+                        changes += 1
+        else:
+            max_value= n %2 + 0.5
+            for l in range(0,n):
+                uns = np.count_nonzero(self.board.board[l] == 1)
+                zeros = np.count_nonzero(self.board.board[l] == 0)
+                if uns == max_value:
+                    if self.change_row(l,0) == 1:
+                        changes += 1
+                if zeros == max_value:
+                    if self.change_row(l,1) == 1:
+                        changes += 1
+            transposta = np.transpose(self.board.board)
+            for l in range(0,n):
+                uns = np.count_nonzero(transposta[l] == 1)
+                zeros = np.count_nonzero(transposta[l] == 0)
+                if uns == max_value:
+                    if self.change_collun(l,0) == 1:
+                        changes += 1
+                if zeros == max_value:
+                    if self.change_collun(l,1) == 1:
+                        changes += 1
+        return changes
+
+    def check_mandatory(self):
+        n = len(self.board.board)
+        changes = 0
+        for i in range(0,n):
+            for j in range(0,n):
+                if (self.board.get_number(i,j) == 2):
+                    adj = self.get_adjacents(i,j)
+                    if adj < 2:
+                        self.board.board[i][j] = adj
+                        changes += 1
+        return changes
+
+    def get_adjacents(self, row : int, col : int):
+        adjacents = []
+        adjacents.append((self.board.adjacent_horizontal_numbers(row,col)))
+        adjacents.append((self.board.adjacent_vertical_numbers(row,col)))
+        n = len(self.board.board)
+        if n < 4:
+            pass
+        if row <= 1:
+            adjacents.append(((self.board.board[row+1][col],self.board.board[row+2][col])))
+        if row > 1 and row < n -2:
+            adjacents.append((self.board.board[row-1][col],self.board.board[row-2][col]))
+            adjacents.append((self.board.board[row+1][col],self.board.board[row+2][col]))
+        if row >= n-2:
+            adjacents.append((self.board.board[n-3][col],self.board.board[n-4][col]))
+        if col <= 1:
+            adjacents.append((self.board.board[row][col+1],self.board.board[row][col+2]))
+        if col > 1 and col < n-2:
+            adjacents.append((self.board.board[row][col+1],self.board.board[row][col+2]))
+            adjacents.append((self.board.board[row][col-1],self.board.board[row][col-2]))
+        if col >= n-2:
+            adjacents.append((self.board.board[row][col-1],self.board.board[row][col-2]))
+        if ((0,0) in adjacents):
+            return 1
+        if ((1,1) in adjacents):
+            return 0
+        return 2      
 
     def __lt__(self, other):
         return self.id < other.id
@@ -98,7 +206,6 @@ class Takuzu(Problem):
     def __init__(self, board: Board):
         """O construtor especifica o estado inicial."""
         self.state = TakuzuState(board)
-        print('test')
 
     def actions(self, state: TakuzuState):
         """Retorna uma lista de ações que podem ser executadas a
@@ -110,7 +217,7 @@ class Takuzu(Problem):
                 if self.state.board.get_number(l,c) == 2:
                     a += [(l,c,0)]	# verificamos se a ação é legal aqui ou no goal_test? CSP
                     a += [(l,c,1)]
-        return a		
+        return a	
 
     def result(self, state: TakuzuState, action):
         """Retorna o estado resultante de executar a 'action' sobre
@@ -126,8 +233,23 @@ class Takuzu(Problem):
         """Retorna True se e só se o estado passado como argumento é
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas com uma sequência de números adjacentes."""
-        # TODO
-        pass
+        for l in state.board.board:
+            if 2 in l:
+                return False
+        n = len(state.board.board)
+        lines = unique(state.board.board)
+        if len(lines) < n:
+            return false
+        cols = []
+        for l in range(0,n):
+            col = []
+            for i in range(0,n):
+                col += [state.board.board[i][l]]
+            if col in cols:
+                return False
+            cols += col
+        return True
+
 
     def h(self, node: Node):
         """Função heuristica utilizada para a procura A*."""
@@ -152,16 +274,9 @@ if __name__ == "__main__":
     #print(solution)
 	
     board = Board.parse_instance_from_stdin()
-    problem = Takuzu(board)
     print("Initial:\n", board, sep="")
-	# Imprimir valores adjacentes
-    print(board.adjacent_vertical_numbers(3, 3))
-    print(board.adjacent_horizontal_numbers(3, 3))
-    print(board.adjacent_vertical_numbers(1, 1))
-    print(board.adjacent_horizontal_numbers(1, 1))
-    l = problem.actions(problem.state)
-    print(l)
-    print(problem.result(problem.state,l[0]).board.board)
+    problem = Takuzu(board)
+    print("Final:\n",board, sep = "")
 
 
 
