@@ -29,7 +29,7 @@ class TakuzuState:
         changes = 1
         while (changes != 0):
             changes = self.number_1_0()
-            changes = self.check_mandatory()
+            changes += self.check_mandatory()
         TakuzuState.state_id += 1
 
     def change_row(self, row : int, value : int):
@@ -75,7 +75,7 @@ class TakuzuState:
                     if self.change_collun(l,1) == 1:
                         changes += 1
         else:
-            max_value= n %2 + 0.5
+            max_value= n /2 + 0.5
             for l in range(0,n):
                 uns = np.count_nonzero(self.board.board[l] == 1)
                 zeros = np.count_nonzero(self.board.board[l] == 0)
@@ -122,7 +122,7 @@ class TakuzuState:
             adjacents.append((self.board.board[row-1][col],self.board.board[row-2][col]))
             adjacents.append((self.board.board[row+1][col],self.board.board[row+2][col]))
         if row >= n-2:
-            adjacents.append((self.board.board[n-3][col],self.board.board[n-4][col]))
+            adjacents.append((self.board.board[row-1][col],self.board.board[row-2][col]))
         if col <= 1:
             adjacents.append((self.board.board[row][col+1],self.board.board[row][col+2]))
         if col > 1 and col < n-2:
