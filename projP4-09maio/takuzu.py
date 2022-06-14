@@ -151,7 +151,9 @@ class Board:
     def __str__(self):
         ster = ""
         for l in range(0,len(self.board)):
-            ster += str(self.board[l]) + "\n"
+            for c in range(0,len(self.board)):
+                ster += str(self.board.board[l][c]) + "\t"
+            ster += "\n"
         return ster
 
     def get_number(self, row: int, col: int) -> int:
