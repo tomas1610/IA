@@ -2,9 +2,9 @@
 # Devem alterar as classes e funções neste ficheiro de acordo com as instruções do enunciado.
 # Além das funções e classes já definidas, podem acrescentar outras que considerem pertinentes.
 
-# Grupo 00:
-# 00000 Nome1
-# 00000 Nome2
+# Grupo 90:
+# 99340 Tomás Marques
+# 99330 Stanislaw Talejko
 
 import sys
 from search import (
@@ -114,8 +114,6 @@ class TakuzuState:
         adjacents.append((self.board.adjacent_horizontal_numbers(row,col)))
         adjacents.append((self.board.adjacent_vertical_numbers(row,col)))
         n = len(self.board.board)
-        if n < 4:
-            pass
         if row <= 1:
             adjacents.append(((self.board.board[row+1][col],self.board.board[row+2][col])))
         if row > 1 and row < n -2:
@@ -152,7 +150,10 @@ class Board:
         ster = ""
         for l in range(0,len(self.board)):
             for c in range(0,len(self.board)):
-                ster += str(self.board.board[l][c]) + "\t"
+                    ster += str(self.board[l][c])
+                    if c != len(self.board)-1:
+                        ster += "\t"
+
             ster += "\n"
         return ster
 
@@ -276,10 +277,7 @@ if __name__ == "__main__":
     #print(solution)
 	
     board = Board.parse_instance_from_stdin()
-    print("Initial:\n", board, sep="")
     problem = Takuzu(board)
-    print("Final:\n",board, sep = "")
-
-
+    print(board,end = '')
 
     pass
