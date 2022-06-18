@@ -30,7 +30,11 @@ class TakuzuState:
         while (changes != 0):
             changes = self.number_1_0()
             changes += self.check_mandatory()
+        self.board.get_empty_positions()
+        print(self.board.positions)
         TakuzuState.state_id += 1
+
+
 
     def change_row(self, row : int, value : int):
         changed = 0
@@ -157,6 +161,15 @@ class Board:
             ster += "\n"
         return ster
 
+    def get_empty_positions(self):   # retorna uma lista com as posicoes que tem dominio >1 , ou seja nao tem nenhuma jogado obrigatoria
+        positions = []             # vamos ter de escolher , qual a melhor jogada
+        n = len(self.board)
+        for i in range(0,n):
+            for j in range(0,n):
+                if (self.board[i][j] == 2):
+                    positions.append([i,j])
+        self.positions = positions
+
     def get_number(self, row: int, col: int) -> int:
         """Devolve o valor na respetiva posição do tabuleiro."""
         return self.board[row][col]
@@ -210,6 +223,7 @@ class Takuzu(Problem):
         """O construtor especifica o estado inicial."""
         self.state = TakuzuState(board)
 
+
     def actions(self, state: TakuzuState):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento."""
@@ -220,7 +234,63 @@ class Takuzu(Problem):
                 if self.state.board.get_number(l,c) == 2:
                     a += [(l,c,0)]	# verificamos se a ação é legal aqui ou no goal_test? CSP
                     a += [(l,c,1)]
-        return a	
+        return a
+
+    def is_possible(self, row : int , col : int , value : int):
+        n = len(self.state.board.board)
+        adj = self.state.get_adjacents(row,col)
+        print("row = ",row," col = ", col ," value = ", value)
+        if (value == (adj - 1) * -1):
+            print("adjacentes\n")
+            return False
+        transposta = np.transpose(self.state.board.board)
+        if (n %2 == 0):
+            max_value = n / 2
+        else:
+            max_value = n /2 + 0.5
+        if (value == 1):
+            uns = np.count_nonzero(self.state.board.board[row] == 1) + 1
+            uns_t = np.count_nonzero(transposta[col] == 1) + 1
+            print("uns = ",uns," uns_t = ",uns_t)
+            if (uns > max_value or uns_t > max_value):
+                print("muitos uns\n")
+                return False
+        else :
+            zeros = np.count_nonzero(self.state.board.board[row] == 0) + 1
+            zeros_t = np.count_nonzero(transposta[col] == 0) + 1
+            print("zeros = ",zeros," zeros_t = ",zeros_t)
+            if (zeros > max_value or zeros_t > max_value):
+                print("muitos zeros\n")
+                return False
+  #      self.state.board.board[row][col] = value
+   #     print(list(self.state.board.board))
+    #    if (len(set(self.state.board.board)) != n):
+     #       self.state.board.board[row][col] = 2  
+      #      print("linhas iguais\n")
+       #     return False
+       # transposta = np.transpose(self.state.board.board)
+        #if (len(set(transposta)) != n):
+         #   self.state.board.board[row][col] = 2
+          #  print("colunas iguais\n")
+           # return False
+        print("possivel\n")
+        return True        
+
+    def solve(self):
+        print('board: ',board)
+        n = len(self.state.board.board)
+        for row in range(0,n):
+            for col in range(0,n):
+                if self.state.board.board[row][col] == 2:
+                    for value in range (0,2):
+                        if self.is_possible(row,col,value):
+                            print("row = ",row," col = ", col ," value = ", value)
+                            self.state.board.board[row][col] = value
+                            self.solve()
+                            self.state.board.board[row][col] = 2
+                    return
+
+
 
     def result(self, state: TakuzuState, action):
         """Retorna o estado resultante de executar a 'action' sobre
@@ -278,6 +348,8 @@ if __name__ == "__main__":
 	
     board = Board.parse_instance_from_stdin()
     problem = Takuzu(board)
+    print(board)
+    problem.solve()
     print(board,end = '')
 
     pass
